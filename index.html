@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Environmental Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #0077b6;
+            color: white;
+            padding: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .data-card {
+            display: inline-block;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+        }
+
+        .data-card h2 {
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        footer .copyright,
+        footer .designby {
+            margin: 5px 0;
+        }
+
+        .alert-box {
+            display: none;
+            background-color: #333;
+            color: #fff;
+            border: 2px solid #d9534f;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            font-size: 18px;
+            text-align: left;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .alert-box h3 {
+            margin-top: 0;
+            color: #d9534f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-box .alert-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #d9534f;
+            border-radius: 5px;
+            background-color: #ff4f5b;
+            font-weight: bold;
+        }
+
+        .alert-item p {
+            color: black;
+        }
+
+        .alert-box .instructions {
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .alert-box .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Real-Time Environmental Monitor</h1>
+    </header>
+    <div class="content">
+        <div class="data-card">
+            <h2>Temperature</h2>
+            <p id="temperature">-- °C</p>
+        </div>
+        <div class="data-card">
+            <h2>Humidity</h2>
+            <p id="humidity">-- %</p>
+        </div>
+        <div class="data-card">
+            <h2>Air Quality</h2>
+            <p id="air-quality">--</p>
+        </div>
+        <div class="data-card">
+            <h2>Pressure</h2>
+            <p id="pressure">-- hPa</p>
+        </div>
+    </div>
+
+    <!-- Alert box -->
+    <div class="alert-box" id="alertBox">
+        <button class="close-btn" id="closeAlert">×</button>
+        <span class="alert-icon">⚠️</span>
+        <h3> Alerts</h3>
+        <div id="alertList"></div>
+    </div>
+
+    <footer>
+        <div class="copyright">&copy; Copyright Disclaimer!!!!</div>
+        <div class="copyright">All Rights Reserved To Evo-Self-Care</div>
+        <div class="designby"><i>Designed By Evo-Self-Care Tech Team</i></div>
+    </footer>
+
+    <script>
+        // Alert sound
+        const alertSound = new Audio('https://www.soundjay.com/button/beep-07.wav');
+        alertSound.preload = "auto";  // Preload the sound
+
+        // Function to check if the sound is ready and play
+        function playAlertSound() {
+            if (alertSound.readyState === 4) {
+                alertSound.play().catch((e) => {
+                    console.error("Sound playback error:", e);
+                });
+            } else {
+                alertSound.load();
+            }
+        }
+
+        // Thresholds
+        const tempHigh = 30;
+        const tempLow = 15;
+        const humidityLow = 40;
+        const airQualityHigh = 200;
+
+        let lastAlertTime = {};
+        let lastAlertClosed = 0;
+        let activeAlerts = [];
+
+        // Random data generator function
+        function generateRandomData() {
+            return {
+                temperature: (Math.random() * 40).toFixed(2),
+                humidity: (Math.random() * 100).toFixed(2),
+                airQuality: (Math.random() * 500).toFixed(2),
+                pressure: (Math.random() * 50 + 960).toFixed(2)
+            };
+        }
+
+        // Update function
+        function updateData() {
+            const currentTime = new Date().getTime();
+            if (currentTime - lastAlertClosed < 20000) {
+                return;
+            }
+
+            const data = generateRandomData();
+            document.getElementById('temperature').innerText = `${data.temperature} °C`;
+            document.getElementById('humidity').innerText = `${data.humidity} %`;
+            document.getElementById('air-quality').innerText = `${data.airQuality}`;
+            document.getElementById('pressure').innerText = `${data.pressure} hPa`;
+
+            // Check conditions and add new alerts if needed
+            if (data.temperature > tempHigh && !isAlertActive('highTemperature')) {
+                addAlert({
+                    id: 'highTemperature',
+                    message: 'High Temperature Alert!',
+                    instructions: 'Please avoid heavy work in outdoor and head to a cold place',
+                    timestamp: currentTime,
+                    fixed: false
+                });
+            }
+
+            if (data.temperature < tempLow && !isAlertActive('lowTemperature')) {
+                addAlert({
+                    id: 'lowTemperature',
+                    message: 'Low Temperature Alert!',
+                    instructions: 'Please take action to warm yourself.',
+                    timestamp: currentTime,
+                    fixed: false
+                });
+            }
+
+            if (data.humidity < humidityLow && !isAlertActive('lowHumidity')) {
+                addAlert({
+                    id: 'lowHumidity',
+                    message: 'Low Humidity Alert!',
+                    instructions: 'Please use a humidifier or go to a humidified place.',
+                    timestamp: currentTime,
+                    fixed: false
+                });
+            }
+
+            if (data.airQuality > airQualityHigh && !isAlertActive('highPollution')) {
+                addAlert({
+                    id: 'highPollution',
+                    message: 'High Pollution Alert!',
+                    instructions: 'Please avoid outdoor activities and wear a mask.',
+                    timestamp: currentTime,
+                    fixed: false
+                });
+            }
+
+            // Display alerts
+            if (activeAlerts.length > 0) {
+                displayAlerts();
+                playAlertSound();
+                lastAlertTime = currentTime;
+            }
+        }
+
+        // Add alert to the list
+        function addAlert(alert) {
+            activeAlerts.unshift(alert); // Add to the top
+            if (activeAlerts.length > 10) {
+                activeAlerts.pop(); // Remove the oldest alert if there are more than 10
+            }
+        }
+
+        // Check if an alert is active
+        function isAlertActive(alertId) {
+            return activeAlerts.some(alert => alert.id === alertId && !alert.fixed);
+        }
+
+        // Display active alerts
+        function displayAlerts() {
+            const alertList = document.getElementById('alertList');
+            alertList.innerHTML = '';
+
+            activeAlerts.forEach(alert => {
+                const alertItem = document.createElement('div');
+                alertItem.classList.add('alert-item');
+                alertItem.innerHTML = `
+                    <strong>${alert.message}</strong>
+                    <p>${alert.instructions}</p>
+                    <p><small>Alert triggered at: ${new Date(alert.timestamp).toLocaleTimeString()}</small></p>
+                    <button onclick="fixAlert('${alert.id}')">Fix Alert</button>
+                `;
+                alertList.appendChild(alertItem);
+            });
+
+            document.getElementById('alertBox').style.display = 'block';
+        }
+
+        // Mark alert as fixed
+        function fixAlert(alertId) {
+            const alert = activeAlerts.find(a => a.id === alertId);
+            if (alert) {
+                alert.fixed = true;
+                alert.timestamp = new Date().getTime();
+                setTimeout(() => {
+                    activeAlerts = activeAlerts.filter(a => a.id !== alertId);
+                    displayAlerts(activeAlerts);
+                }, 30000); // Keep the alert for at least 30 seconds after being fixed
+            }
+        }
+
+        // Close alert box
+        document.getElementById('closeAlert').addEventListener('click', function () {
+            document.getElementById('alertBox').style.display = 'none';
+            lastAlertClosed = new Date().getTime();
+        });
+
+        // Update data every 3 seconds
+        setInterval(updateData, 3000);
+    </script>
+</body>
+
+</html>
