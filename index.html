@@ -165,158 +165,162 @@
     </footer>
 
     <script>
-        // Alert sound
-        const alertSound = new Audio('https://www.soundjay.com/button/beep-07.wav');
-        alertSound.preload = "auto";  // Preload the sound
+       // Alert sound
+const alertSound = new Audio('alert.mp3');
+alertSound.preload = "auto";  // Preload the sound
 
-        // Function to check if the sound is ready and play
-        function playAlertSound() {
-            if (alertSound.readyState === 4) {
-                alertSound.play().catch((e) => {
-                    console.error("Sound playback error:", e);
-                });
-            } else {
-                alertSound.load();
-            }
-        }
+// Wait until the sound is fully loaded
+alertSound.addEventListener('canplaythrough', function() {
+    console.log("Alert sound is ready to play.");
+});
 
-        // Thresholds
-        const tempHigh = 30;
-        const tempLow = 15;
-        const humidityLow = 40;
-        const airQualityHigh = 200;
+// Function to check if the sound is ready and play
+function playAlertSound() {
+    // Attempt to play the sound and handle errors
+    alertSound.play().catch((e) => {
+        console.error("Sound playback error:", e);
+    });
+}
 
-        let lastAlertTime = {};
-        let lastAlertClosed = 0;
-        let activeAlerts = [];
+// Thresholds
+const tempHigh = 30;
+const tempLow = 15;
+const humidityLow = 40;
+const airQualityHigh = 200;
 
-        // Random data generator function
-        function generateRandomData() {
-            return {
-                temperature: (Math.random() * 40).toFixed(2),
-                humidity: (Math.random() * 100).toFixed(2),
-                airQuality: (Math.random() * 500).toFixed(2),
-                pressure: (Math.random() * 50 + 960).toFixed(2)
-            };
-        }
+let lastAlertTime = {};
+let lastAlertClosed = 0;
+let activeAlerts = [];
 
-        // Update function
-        function updateData() {
-            const currentTime = new Date().getTime();
-            if (currentTime - lastAlertClosed < 20000) {
-                return;
-            }
+// Random data generator function
+function generateRandomData() {
+    return {
+        temperature: (Math.random() * 40).toFixed(2),
+        humidity: (Math.random() * 100).toFixed(2),
+        airQuality: (Math.random() * 500).toFixed(2),
+        pressure: (Math.random() * 50 + 960).toFixed(2)
+    };
+}
 
-            const data = generateRandomData();
-            document.getElementById('temperature').innerText = `${data.temperature} °C`;
-            document.getElementById('humidity').innerText = `${data.humidity} %`;
-            document.getElementById('air-quality').innerText = `${data.airQuality}`;
-            document.getElementById('pressure').innerText = `${data.pressure} hPa`;
+// Update function
+function updateData() {
+    const currentTime = new Date().getTime();
+    if (currentTime - lastAlertClosed < 20000) {
+        return;
+    }
 
-            // Check conditions and add new alerts if needed
-            if (data.temperature > tempHigh && !isAlertActive('highTemperature')) {
-                addAlert({
-                    id: 'highTemperature',
-                    message: 'High Temperature Alert!',
-                    instructions: 'Please avoid heavy work in outdoor and head to a cold place',
-                    timestamp: currentTime,
-                    fixed: false
-                });
-            }
+    const data = generateRandomData();
+    document.getElementById('temperature').innerText = `${data.temperature} °C`;
+    document.getElementById('humidity').innerText = `${data.humidity} %`;
+    document.getElementById('air-quality').innerText = `${data.airQuality}`;
+    document.getElementById('pressure').innerText = `${data.pressure} hPa`;
 
-            if (data.temperature < tempLow && !isAlertActive('lowTemperature')) {
-                addAlert({
-                    id: 'lowTemperature',
-                    message: 'Low Temperature Alert!',
-                    instructions: 'Please take action to warm yourself.',
-                    timestamp: currentTime,
-                    fixed: false
-                });
-            }
-
-            if (data.humidity < humidityLow && !isAlertActive('lowHumidity')) {
-                addAlert({
-                    id: 'lowHumidity',
-                    message: 'Low Humidity Alert!',
-                    instructions: 'Please use a humidifier or go to a humidified place.',
-                    timestamp: currentTime,
-                    fixed: false
-                });
-            }
-
-            if (data.airQuality > airQualityHigh && !isAlertActive('highPollution')) {
-                addAlert({
-                    id: 'highPollution',
-                    message: 'High Pollution Alert!',
-                    instructions: 'Please avoid outdoor activities and wear a mask.',
-                    timestamp: currentTime,
-                    fixed: false
-                });
-            }
-
-            // Display alerts
-            if (activeAlerts.length > 0) {
-                displayAlerts();
-                playAlertSound();
-                lastAlertTime = currentTime;
-            }
-        }
-
-        // Add alert to the list
-        function addAlert(alert) {
-            activeAlerts.unshift(alert); // Add to the top
-            if (activeAlerts.length > 10) {
-                activeAlerts.pop(); // Remove the oldest alert if there are more than 10
-            }
-        }
-
-        // Check if an alert is active
-        function isAlertActive(alertId) {
-            return activeAlerts.some(alert => alert.id === alertId && !alert.fixed);
-        }
-
-        // Display active alerts
-        function displayAlerts() {
-            const alertList = document.getElementById('alertList');
-            alertList.innerHTML = '';
-
-            activeAlerts.forEach(alert => {
-                const alertItem = document.createElement('div');
-                alertItem.classList.add('alert-item');
-                alertItem.innerHTML = `
-                    <strong>${alert.message}</strong>
-                    <p>${alert.instructions}</p>
-                    <p><small>Alert triggered at: ${new Date(alert.timestamp).toLocaleTimeString()}</small></p>
-                    <button onclick="fixAlert('${alert.id}')">Fix Alert</button>
-                `;
-                alertList.appendChild(alertItem);
-            });
-
-            document.getElementById('alertBox').style.display = 'block';
-        }
-
-        // Mark alert as fixed
-        function fixAlert(alertId) {
-            const alert = activeAlerts.find(a => a.id === alertId);
-            if (alert) {
-                alert.fixed = true;
-                alert.timestamp = new Date().getTime();
-                setTimeout(() => {
-                    activeAlerts = activeAlerts.filter(a => a.id !== alertId);
-                    displayAlerts(activeAlerts);
-                }, 30000); // Keep the alert for at least 30 seconds after being fixed
-            }
-        }
-
-        // Close alert box
-        document.getElementById('closeAlert').addEventListener('click', function () {
-            document.getElementById('alertBox').style.display = 'none';
-            lastAlertClosed = new Date().getTime();
+    // Check conditions and add new alerts if needed
+    if (data.temperature > tempHigh && !isAlertActive('highTemperature')) {
+        addAlert({
+            id: 'highTemperature',
+            message: 'High Temperature Alert!',
+            instructions: 'Please avoid heavy work in outdoor and head to a cold place',
+            timestamp: currentTime,
+            fixed: false
         });
- 
-        // Update data every 3 seconds
-        setInterval(updateData, 3000);
+    }
+
+    if (data.temperature < tempLow && !isAlertActive('lowTemperature')) {
+        addAlert({
+            id: 'lowTemperature',
+            message: 'Low Temperature Alert!',
+            instructions: 'Please take action to warm yourself.',
+            timestamp: currentTime,
+            fixed: false
+        });
+    }
+
+    if (data.humidity < humidityLow && !isAlertActive('lowHumidity')) {
+        addAlert({
+            id: 'lowHumidity',
+            message: 'Low Humidity Alert!',
+            instructions: 'Please use a humidifier or go to a humidified place.',
+            timestamp: currentTime,
+            fixed: false
+        });
+    }
+
+    if (data.airQuality > airQualityHigh && !isAlertActive('highPollution')) {
+        addAlert({
+            id: 'highPollution',
+            message: 'High Pollution Alert!',
+            instructions: 'Please avoid outdoor activities and wear a mask.',
+            timestamp: currentTime,
+            fixed: false
+        });
+    }
+
+    // Display alerts
+    if (activeAlerts.length > 0) {
+        displayAlerts();
+        playAlertSound();
+        lastAlertTime = currentTime;
+    }
+}
+
+// Add alert to the list
+function addAlert(alert) {
+    activeAlerts.unshift(alert); // Add to the top
+    if (activeAlerts.length > 10) {
+        activeAlerts.pop(); // Remove the oldest alert if there are more than 10
+    }
+}
+
+// Check if an alert is active
+function isAlertActive(alertId) {
+    return activeAlerts.some(alert => alert.id === alertId && !alert.fixed);
+}
+
+// Display active alerts
+function displayAlerts() {
+    const alertList = document.getElementById('alertList');
+    alertList.innerHTML = '';
+
+    activeAlerts.forEach(alert => {
+        const alertItem = document.createElement('div');
+        alertItem.classList.add('alert-item');
+        alertItem.innerHTML = `
+            <strong>${alert.message}</strong>
+            <p>${alert.instructions}</p>
+            <p><small>Alert triggered at: ${new Date(alert.timestamp).toLocaleTimeString()}</small></p>
+            <button onclick="fixAlert('${alert.id}')">Fix Alert</button>
+        `;
+        alertList.appendChild(alertItem);
+    });
+
+    document.getElementById('alertBox').style.display = 'block';
+}
+
+// Mark alert as fixed
+function fixAlert(alertId) {
+    const alert = activeAlerts.find(a => a.id === alertId);
+    if (alert) {
+        alert.fixed = true;
+        alert.timestamp = new Date().getTime();
+        setTimeout(() => {
+            activeAlerts = activeAlerts.filter(a => a.id !== alertId);
+            displayAlerts(activeAlerts);
+        }, 30000); // Keep the alert for at least 30 seconds after being fixed
+    }
+}
+
+// Close alert box
+document.getElementById('closeAlert').addEventListener('click', function () {
+    document.getElementById('alertBox').style.display = 'none';
+    lastAlertClosed = new Date().getTime();
+});
+
+// Update data every 3 seconds
+setInterval(updateData, 3000);
+
     </script>
+    
 </body>
 
 </html>
