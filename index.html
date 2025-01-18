@@ -1,326 +1,426 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evo Self Care</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f8ff;
-            color: #333;
-            text-align: center;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
 
-        header {
-            background-color: #0077b6;
-            color: white;
-            padding: 20px;
-        }
+<meta charset="UTF-8" />
 
-        header h1 {
-            margin: 0;
-            font-size: 2em;
-        }
-        .project-name{
-            color: black;
-        }
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        .content {
-            padding: 20px;
-            flex-grow: 1;
-        }
+<title>Evo Self Care</title>
 
-        .data-card {
-            display: inline-block;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            padding: 20px;
-            width: 200px;
-            text-align: center;
-        }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .data-card h2 {
-            margin: 10px 0;
-            font-size: 1.5em;
-        }
+<style>
 
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
+/* Custom styles for animations */
 
-        footer .copyright,
-        footer .designby {
-            margin: 5px 0;
-        }
+.fade-in {
 
-        .alert-box {
-            display: none;
-            background-color: #333;
-            color: #fff;
-            border: 2px solid #d9534f;
-            border-radius: 10px;
-            padding: 20px;
-            width: 80%;
-            max-width: 500px;
-            font-size: 18px;
-            text-align: left;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 20px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+animation: fadeIn 1s ease-in-out;
 
-        .alert-box h3 {
-            margin-top: 0;
-            color: #d9534f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+}
 
-        .alert-box .alert-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #d9534f;
-            border-radius: 5px;
-            background-color: #ff4f5b;
-            font-weight: bold;
-        }
 
-        .alert-item p {
-            color: black;
-        }
+@keyframes fadeIn {
 
-        .alert-box .instructions {
-            margin-top: 5px;
-            font-weight: normal;
-        }
+from {
 
-        .alert-box .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-    </style>
+opacity: 0;
+
+}
+
+
+to {
+
+opacity: 1;
+
+}
+
+}
+
+</style>
+
 </head>
 
-<body>
-    <header>
-        <h1>Lakshmipur Govt. College <br> <div class="project-name">Evo Self Care</div></h1>
-    </header>
-    <div class="content">
-        <div class="data-card">
-            <h2>Temperature</h2>
-            <p id="temperature">-- °C</p>
-        </div>
-        <div class="data-card">
-            <h2>Humidity</h2>
-            <p id="humidity">-- %</p>
-        </div>
-        <div class="data-card">
-            <h2>Air Quality</h2>
-            <p id="air-quality">--</p>
-        </div>
-        <div class="data-card">
-            <h2>Pressure</h2>
-            <p id="pressure">-- hPa</p>
-        </div>
-    </div>
 
-    <!-- Alert box -->
-    <div class="alert-box" id="alertBox">
-        <button class="close-btn" id="closeAlert">×</button>
-        <span class="alert-icon">⚠️</span>
-        <h3> Alerts</h3>
-        <div id="alertList"></div>
-    </div>
+<body class="bg-blue-50 text-gray-800 min-h-screen flex flex-col font-sans">
 
-    <footer>
-        <div class="copyright">&copy; Copyright Disclaimer!!!!</div>
-        <div class="copyright">All Rights Reserved To Evo-Self-Care</div>
-        <div class="designby"><i>Designed By Evo-Self-Care Tech Team</i></div>
-    </footer>
+<!-- Header -->
 
-    <script>
-       // Alert sound
-const alertSound = new Audio('alert.mp3');
-alertSound.preload = "auto";  // Preload the sound
+<header class="bg-blue-600 text-white p-5 shadow-lg">
 
-// Wait until the sound is fully loaded
-alertSound.addEventListener('canplaythrough', function() {
-    console.log("Alert sound is ready to play.");
-});
+<h1 class="text-2xl md:text-3xl font-bold text-center">
 
-// Function to check if the sound is ready and play
-function playAlertSound() {
-    // Attempt to play the sound and handle errors
-    alertSound.play().catch((e) => {
-        console.error("Sound playback error:", e);
-    });
-}
+Lakshmipur Govt. College
 
-// Thresholds
-const tempHigh = 30;
-const tempLow = 15;
-const humidityLow = 40;
-const airQualityHigh = 200;
+</h1>
 
-let lastAlertTime = {};
-let lastAlertClosed = 0;
+<p class="text-lg text-center mt-2">Evo Self Care</p>
+
+</header>
+
+
+<!-- Main Content -->
+
+<main class="flex-grow container mx-auto px-4 py-6">
+
+<!-- Data Cards -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+<div class="bg-white rounded-lg shadow-md p-5 text-center">
+
+<h2 class="text-xl font-bold">Temperature</h2>
+
+<p id="temperature" class="text-3xl text-blue-600 font-semibold mt-3">
+
+20.00 Â°C
+
+</p>
+
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-5 text-center">
+
+<h2 class="text-xl font-bold">Humidity</h2>
+
+<p id="humidity" class="text-3xl text-blue-600 font-semibold mt-3">
+
+60.00 %
+
+</p>
+
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-5 text-center">
+
+<h2 class="text-xl font-bold">Air Quality</h2>
+
+<p id="air-quality" class="text-3xl text-blue-600 font-semibold mt-3">
+
+150
+
+</p>
+
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-5 text-center">
+
+<h2 class="text-xl font-bold">Pressure</h2>
+
+<p id="pressure" class="text-3xl text-blue-600 font-semibold mt-3">
+
+1013.00 hPa
+
+</p>
+
+</div>
+
+</div>
+
+
+<!-- Alert Box -->
+
+<div
+
+id="alertBox"
+
+class="bg-red-100 border-l-4 border-red-500 text-red-700 p-5 rounded-lg shadow-md mt-8 fade-in hidden"
+
+>
+
+<div id="alertList" class="mt-4 space-y-3"></div>
+
+</div>
+
+</main>
+
+
+<!-- Footer -->
+
+<footer class="bg-gray-800 text-white text-center p-4">
+
+<p class="text-sm">&copy; 2025 Evo Self Care. All Rights Reserved.</p>
+
+<p class="text-sm italic">Designed by Evo-Self-Care Tech Team</p>
+
+</footer>
+
+
+<script>
+
+// Alert sound setup (looping)
+
+const alertSound = new Audio("./alert.mp3");
+
+alertSound.loop = true; // Set the audio to loop
+
+
+// Thresholds for conditions
+
+const thresholds = {
+
+tempHigh: 30,
+
+tempLow: 15,
+
+humidityLow: 40,
+
+airQualityHigh: 200,
+
+};
+
+
 let activeAlerts = [];
 
-// Random data generator function
+let alertSoundPlaying = false;
+
+
+// Set initial data
+
+const initialData = {
+
+temperature: 20.0,
+
+humidity: 60.0,
+
+airQuality: 150,
+
+pressure: 1013.0,
+
+};
+
+
+// Display the initial data immediately
+
+function displayInitialData() {
+
+document.getElementById(
+
+"temperature"
+
+).innerText = ${initialData.temperature} Â°C;
+
+document.getElementById(
+
+"humidity"
+
+).innerText = ${initialData.humidity} %;
+
+document.getElementById("air-quality").innerText =
+
+initialData.airQuality;
+
+document.getElementById(
+
+"pressure"
+
+).innerText = ${initialData.pressure} hPa;
+
+
+// Manage alerts based on initial data
+
+checkThresholds(initialData);
+
+}
+
+
+// Generate random data for updates
+
 function generateRandomData() {
-    return {
-        temperature: (Math.random() * 40).toFixed(2),
-        humidity: (Math.random() * 100).toFixed(2),
-        airQuality: (Math.random() * 500).toFixed(2),
-        pressure: (Math.random() * 50 + 960).toFixed(2)
-    };
+
+return {
+
+temperature: (Math.random() * 40).toFixed(2),
+
+humidity: (Math.random() * 100).toFixed(2),
+
+airQuality: (Math.random() * 500).toFixed(2),
+
+pressure: (Math.random() * 50 + 960).toFixed(2),
+
+};
+
 }
 
-// Update function
+
+// Update displayed data and handle alerts
+
 function updateData() {
-    const currentTime = new Date().getTime();
-    if (currentTime - lastAlertClosed < 20000) {
-        return;
-    }
 
-    const data = generateRandomData();
-    document.getElementById('temperature').innerText = `${data.temperature} °C`;
-    document.getElementById('humidity').innerText = `${data.humidity} %`;
-    document.getElementById('air-quality').innerText = `${data.airQuality}`;
-    document.getElementById('pressure').innerText = `${data.pressure} hPa`;
+const data = generateRandomData();
 
-    // Check conditions and add new alerts if needed
-    if (data.temperature > tempHigh && !isAlertActive('highTemperature')) {
-        addAlert({
-            id: 'highTemperature',
-            message: 'High Temperature Alert!',
-            instructions: 'Please avoid heavy work in outdoor and head to a cold place',
-            timestamp: currentTime,
-            fixed: false
-        });
-    }
+document.getElementById(
 
-    if (data.temperature < tempLow && !isAlertActive('lowTemperature')) {
-        addAlert({
-            id: 'lowTemperature',
-            message: 'Low Temperature Alert!',
-            instructions: 'Please take action to warm yourself.',
-            timestamp: currentTime,
-            fixed: false
-        });
-    }
+"temperature"
 
-    if (data.humidity < humidityLow && !isAlertActive('lowHumidity')) {
-        addAlert({
-            id: 'lowHumidity',
-            message: 'Low Humidity Alert!',
-            instructions: 'Please use a humidifier or go to a humidified place.',
-            timestamp: currentTime,
-            fixed: false
-        });
-    }
+).innerText = ${data.temperature} Â°C;
 
-    if (data.airQuality > airQualityHigh && !isAlertActive('highPollution')) {
-        addAlert({
-            id: 'highPollution',
-            message: 'High Pollution Alert!',
-            instructions: 'Please avoid outdoor activities and wear a mask.',
-            timestamp: currentTime,
-            fixed: false
-        });
-    }
+document.getElementById("humidity").innerText = ${data.humidity} %;
 
-    // Display alerts
-    if (activeAlerts.length > 0) {
-        displayAlerts();
-        playAlertSound();
-        lastAlertTime = currentTime;
-    }
+document.getElementById("air-quality").innerText = data.airQuality;
+
+document.getElementById("pressure").innerText = ${data.pressure} hPa;
+
+
+// Manage alerts
+
+checkThresholds(data);
+
 }
 
-// Add alert to the list
-function addAlert(alert) {
-    activeAlerts.unshift(alert); // Add to the top
-    if (activeAlerts.length > 10) {
-        activeAlerts.pop(); // Remove the oldest alert if there are more than 10
-    }
-}
 
-// Check if an alert is active
-function isAlertActive(alertId) {
-    return activeAlerts.some(alert => alert.id === alertId && !alert.fixed);
-}
+// Check thresholds and trigger alerts
 
-// Display active alerts
-function displayAlerts() {
-    const alertList = document.getElementById('alertList');
-    alertList.innerHTML = '';
+function checkThresholds(data) {
 
-    activeAlerts.forEach(alert => {
-        const alertItem = document.createElement('div');
-        alertItem.classList.add('alert-item');
-        alertItem.innerHTML = `
-            <strong>${alert.message}</strong>
-            <p>${alert.instructions}</p>
-            <p><small>Alert triggered at: ${new Date(alert.timestamp).toLocaleTimeString()}</small></p>
-            <button onclick="fixAlert('${alert.id}')">Fix Alert</button>
-        `;
-        alertList.appendChild(alertItem);
-    });
+activeAlerts = []; // Reset alerts
 
-    document.getElementById('alertBox').style.display = 'block';
-}
 
-// Mark alert as fixed
-function fixAlert(alertId) {
-    const alert = activeAlerts.find(a => a.id === alertId);
-    if (alert) {
-        alert.fixed = true;
-        alert.timestamp = new Date().getTime();
-        setTimeout(() => {
-            activeAlerts = activeAlerts.filter(a => a.id !== alertId);
-            displayAlerts(activeAlerts);
-        }, 30000); // Keep the alert for at least 30 seconds after being fixed
-    }
-}
+if (data.temperature > thresholds.tempHigh) {
 
-// Close alert box
-document.getElementById('closeAlert').addEventListener('click', function () {
-    document.getElementById('alertBox').style.display = 'none';
-    lastAlertClosed = new Date().getTime();
+activeAlerts.push({
+
+message: "High Temperature Alert!",
+
+instructions: "Stay hydrated and avoid outdoor activities.",
+
 });
 
-// Update data every 3 seconds
-setInterval(updateData, 3000);
+}
 
-    </script>
-    
+
+if (data.temperature < thresholds.tempLow) {
+
+activeAlerts.push({
+
+message: "Low Temperature Alert!",
+
+instructions: "Wear warm clothes and stay indoors.",
+
+});
+
+}
+
+
+if (data.humidity < thresholds.humidityLow) {
+
+activeAlerts.push({
+
+message: "Low Humidity Alert!",
+
+instructions: "Use a humidifier and drink more water.",
+
+});
+
+}
+
+
+if (data.airQuality > thresholds.airQualityHigh) {
+
+activeAlerts.push({
+
+message: "High Pollution Alert!",
+
+instructions: "Wear a mask and limit outdoor activities.",
+
+});
+
+}
+
+
+displayAlerts();
+
+}
+
+
+// Display alerts in the alert box
+
+function displayAlerts() {
+
+const alertBox = document.getElementById("alertBox");
+
+const alertList = document.getElementById("alertList");
+
+
+alertList.innerHTML = activeAlerts
+
+.map(
+
+(alert, index) => `
+
+<div class="bg-red-200 p-3 rounded-md shadow flex justify-between items-center">
+
+<div>
+
+<p class="font-bold">${alert.message}</p>
+
+<p class="text-sm">${alert.instructions}</p>
+
+</div>
+
+<button class="text-red-500 hover:text-red-700 text-2xl" onclick="closeAlert(${index})">&times;</button>
+
+</div>
+
+`
+
+)
+
+.join("");
+
+
+if (activeAlerts.length !==0) {
+
+alertBox.classList.remove("hidden");
+
+if (!alertSoundPlaying) {
+
+alertSound.play();
+
+alertSoundPlaying = true;
+
+}
+
+} else {
+
+alertBox.classList.add("hidden");
+
+alertSoundPlaying = false;
+
+alertSound.pause();
+
+alertSound.currentTime = 0;
+
+}
+
+}
+
+
+// Close individual alert
+
+function closeAlert(index) {
+
+activeAlerts.splice(index, 1); // Remove the specific alert
+
+displayAlerts();
+
+}
+
+
+// Initial load with predefined data
+
+displayInitialData();
+
+
+// Periodic data update
+
+setInterval(updateData, 5000);
+
+</script>
+
 </body>
 
 </html>
