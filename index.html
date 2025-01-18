@@ -183,31 +183,39 @@
         const alertBox = document.getElementById("alertBox");
         const alertList = document.getElementById("alertList");
 
+        // Populate alert list with current alerts
         alertList.innerHTML = activeAlerts
           .map(
             (alert, index) => `
-            <div class="bg-red-200 p-3 rounded-md shadow flex justify-between items-center">
-                <div>
-                    <p class="font-bold">${alert.message}</p>
-                    <p class="text-sm">${alert.instructions}</p>
-                </div>
-                <button class="text-red-500 hover:text-red-700 text-2xl" onclick="closeAlert(${index})">&times;</button>
+        <div class="bg-red-200 p-3 rounded-md shadow flex justify-between items-center">
+            <div>
+                <p class="font-bold">${alert.message}</p>
+                <p class="text-sm">${alert.instructions}</p>
             </div>
-          `
+            <button class="text-red-500 hover:text-red-700 text-2xl" onclick="closeAlert(${index})">&times;</button>
+        </div>
+      `
           )
           .join("");
 
-        if (activeAlerts.length !==0) {
+        // Show or hide alert box
+        if (activeAlerts.length !== 0) {
           alertBox.classList.remove("hidden");
+
+          // Always play the alert sound when there are active alerts
           if (!alertSoundPlaying) {
-            alertSound.play();
+            alertSound.play().catch((err) => {
+              console.error("Error playing alert sound:", err);
+            });
             alertSoundPlaying = true;
           }
         } else {
           alertBox.classList.add("hidden");
-          alertSoundPlaying = false;
+
+          // Stop the alert sound when all alerts are cleared
           alertSound.pause();
           alertSound.currentTime = 0;
+          alertSoundPlaying = false;
         }
       }
 
