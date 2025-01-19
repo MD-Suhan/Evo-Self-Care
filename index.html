@@ -15,7 +15,6 @@
         from {
           opacity: 0;
         }
-
         to {
           opacity: 1;
         }
@@ -23,9 +22,9 @@
     </style>
   </head>
 
-  <body class="bg-blue-50 text-gray-800 min-h-screen flex flex-col font-sans">
+  <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
     <!-- Header -->
-    <header class="bg-blue-600 text-white p-5 shadow-lg">
+    <header class="bg-gray-800 text-white p-5 shadow-lg">
       <h1 class="text-2xl md:text-3xl font-bold text-center">
         Lakshmipur Govt. College
       </h1>
@@ -36,27 +35,27 @@
     <main class="flex-grow container mx-auto px-4 py-6">
       <!-- Data Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold">Temperature</h2>
-          <p id="temperature" class="text-3xl text-blue-600 font-semibold mt-3">
+        <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
+          <h2 class="text-xl font-bold text-white">Temperature</h2>
+          <p id="temperature" class="text-3xl text-blue-400 font-semibold mt-3">
             20.00 °C
           </p>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold">Humidity</h2>
-          <p id="humidity" class="text-3xl text-blue-600 font-semibold mt-3">
+        <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
+          <h2 class="text-xl font-bold text-white">Humidity</h2>
+          <p id="humidity" class="text-3xl text-blue-400 font-semibold mt-3">
             60.00 %
           </p>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold">Air Quality</h2>
-          <p id="air-quality" class="text-3xl text-blue-600 font-semibold mt-3">
+        <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
+          <h2 class="text-xl font-bold text-white">Air Quality</h2>
+          <p id="air-quality" class="text-3xl text-blue-400 font-semibold mt-3">
             150
           </p>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold">Pressure</h2>
-          <p id="pressure" class="text-3xl text-blue-600 font-semibold mt-3">
+        <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
+          <h2 class="text-xl font-bold text-white">Pressure</h2>
+          <p id="pressure" class="text-3xl text-blue-400 font-semibold mt-3">
             1013.00 hPa
           </p>
         </div>
@@ -65,7 +64,7 @@
       <!-- Alert Box -->
       <div
         id="alertBox"
-        class="bg-red-100 border-l-4 border-red-500 text-red-700 p-5 rounded-lg shadow-md mt-8 fade-in hidden"
+        class="bg-black border-l-4 border-yellow-500 text-white p-5 rounded-lg shadow-md mt-8 fade-in hidden"
       >
         <div id="alertList" class="mt-4 space-y-3"></div>
       </div>
@@ -186,11 +185,11 @@
         // Populate alert list with current alerts
         alertList.innerHTML = activeAlerts
           .map(
-            (alert, index) => `
-        <div class="bg-red-200 p-3 rounded-md shadow flex justify-between items-center">
+            (alert, index) => ` 
+        <div class="bg-gray-800 p-3 rounded-md shadow flex justify-between items-center">
             <div>
-                <p class="font-bold">${alert.message}</p>
-                <p class="text-sm">${alert.instructions}</p>
+                <p class="font-bold text-white">${alert.message}</p>
+                <p class="text-sm text-yellow-300">${alert.instructions}</p>
             </div>
             <button class="text-red-500 hover:text-red-700 text-2xl" onclick="closeAlert(${index})">&times;</button>
         </div>
