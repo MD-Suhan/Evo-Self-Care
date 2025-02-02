@@ -3,42 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Evo Self Care</title>
+    <title>Evo Self Care - Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Custom styles for animations */
       .fade-in {
         animation: fadeIn 1s ease-in-out;
       }
-
+      
       @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
-      body{
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: url(./web\ page\ bg-01.jpg) no-repeat center center fixed;
-  background-size: cover;
-  color: #333;
-  padding: 20px;
-
-}
     </style>
   </head>
 
-  <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
-    <!-- Header -->
-    <header class="bg-gray-800 text-white p-5 shadow-lg">
-      <h1 class="text-2xl md:text-3xl font-bold text-center">
-        Lakshmipur Govt. College
-      </h1>
-      <p class="text-lg text-center mt-2">Evo Self Care</p>
+  <body class="bg-black text-gray-200 min-h-screen flex flex-col font-sans">
+    <!-- Header with Connection Button -->
+    <header class="bg-gray-900 text-gray-100 p-5 shadow-lg flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Lakshmipur Govt. College</h1>
+        <p class="text-lg mt-2">Evo Self Care</p>
+      </div>
+      <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+        🔗 Connect Device
+      </button>
     </header>
 
     <!-- Main Content -->
@@ -46,199 +34,181 @@
       <!-- Data Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold text-white">Temperature</h2>
-          <p id="temperature" class="text-3xl text-blue-400 font-semibold mt-3">
-            20.00 °C
-          </p>
+          <h2 class="text-xl font-bold">Temperature</h2>
+          <p id="temperature" class="text-3xl text-yellow-300 font-semibold mt-3">-- °C</p>
         </div>
         <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold text-white">Humidity</h2>
-          <p id="humidity" class="text-3xl text-blue-400 font-semibold mt-3">
-            60.00 %
-          </p>
+          <h2 class="text-xl font-bold">Humidity</h2>
+          <p id="humidity" class="text-3xl text-yellow-300 font-semibold mt-3">-- %</p>
         </div>
         <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold text-white">Air Quality</h2>
-          <p id="air-quality" class="text-3xl text-blue-400 font-semibold mt-3">
-            150
-          </p>
+          <h2 class="text-xl font-bold">Air Quality</h2>
+          <p id="air-quality" class="text-3xl text-yellow-300 font-semibold mt-3">--</p>
         </div>
         <div class="bg-gray-800 rounded-lg shadow-md p-5 text-center">
-          <h2 class="text-xl font-bold text-white">Pressure</h2>
-          <p id="pressure" class="text-3xl text-blue-400 font-semibold mt-3">
-            1013.00 hPa
-          </p>
+          <h2 class="text-xl font-bold">Pressure</h2>
+          <p id="pressure" class="text-3xl text-yellow-300 font-semibold mt-3">-- hPa</p>
         </div>
       </div>
 
       <!-- Alert Box -->
-      <div
-        id="alertBox"
-        class="bg-black border-l-4 border-yellow-500 text-white p-5 rounded-lg shadow-md mt-8 fade-in hidden"
-      >
+      <div id="alertBox" class="bg-gray-800 border-l-4 border-gray-600 text-gray-300 p-5 rounded-lg shadow-lg mt-8 fade-in hidden">
         <div id="alertList" class="mt-4 space-y-3"></div>
       </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white text-center p-4">
+    <footer class="bg-gray-900 text-gray-300 text-center p-4">
       <p class="text-sm">&copy; 2025 Evo Self Care. All Rights Reserved.</p>
       <p class="text-sm italic">Designed by Evo-Self-Care Tech Team</p>
     </footer>
 
     <script>
-      // Alert sound setup (looping)
-      const alertSound = new Audio("./alert.mp3");
-      alertSound.loop = true; // Set the audio to loop
+      // Web Bluetooth Configuration
+      const HM10_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+      const HM10_CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+      let bluetoothDevice = null;
+      let bluetoothCharacteristic = null;
 
-      // Thresholds for conditions
+      // Alert System
+      const alertSound = new Audio("./alert.mp3");
+      alertSound.loop = true;
       const thresholds = {
         tempHigh: 30,
         tempLow: 15,
         humidityLow: 40,
         airQualityHigh: 200,
       };
-
       let activeAlerts = [];
       let alertSoundPlaying = false;
 
-      // Set initial data
-      const initialData = {
-        temperature: 20.0,
-        humidity: 60.0,
-        airQuality: 150,
-        pressure: 1013.0,
-      };
+      // Bluetooth Connection Handler
+      document.getElementById('connectBtn').addEventListener('click', async () => {
+        try {
+          bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [HM10_SERVICE_UUID] }]
+          });
 
-      // Display the initial data immediately
-      function displayInitialData() {
-        document.getElementById(
-          "temperature"
-        ).innerText = `${initialData.temperature} °C`;
-        document.getElementById(
-          "humidity"
-        ).innerText = `${initialData.humidity} %`;
-        document.getElementById("air-quality").innerText =
-          initialData.airQuality;
-        document.getElementById(
-          "pressure"
-        ).innerText = `${initialData.pressure} hPa`;
+          const server = await bluetoothDevice.gatt.connect();
+          const service = await server.getPrimaryService(HM10_SERVICE_UUID);
+          bluetoothCharacteristic = await service.getCharacteristic(HM10_CHARACTERISTIC_UUID);
+          
+          await bluetoothCharacteristic.startNotifications();
+          bluetoothCharacteristic.addEventListener('characteristicvaluechanged', handleBluetoothData);
+          
+          document.getElementById('connectBtn').textContent = "Connected ✅";
+          document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-green-600');
 
-        // Manage alerts based on initial data
-        checkThresholds(initialData);
+        } catch (error) {
+          console.error('Bluetooth error:', error);
+          alert('Connection failed! Please try again.');
+        }
+      });
+
+      // Handle incoming Bluetooth data
+      function handleBluetoothData(event) {
+        const decoder = new TextDecoder();
+        const rawData = decoder.decode(event.target.value);
+        const sensorData = parseSensorData(rawData);
+        
+        updateDisplay(sensorData);
+        checkThresholds(sensorData);
       }
 
-      // Generate random data for updates
-      function generateRandomData() {
+      // Parse sensor data from HM-10
+      function parseSensorData(rawString) {
+        // Expected format: "T=25.50,H=60.00,AQ=150,P=1013.25"
+        const data = {};
+        rawString.split(',').forEach(pair => {
+          const [key, value] = pair.split('=');
+          data[key.toLowerCase()] = parseFloat(value);
+        });
         return {
-          temperature: (Math.random() * 40).toFixed(2),
-          humidity: (Math.random() * 100).toFixed(2),
-          airQuality: (Math.random() * 500).toFixed(2),
-          pressure: (Math.random() * 50 + 960).toFixed(2),
+          temperature: data.t || 0,
+          humidity: data.h || 0,
+          airQuality: data.aq || 0,
+          pressure: data.p || 0
         };
       }
 
-      // Update displayed data and handle alerts
-      function updateData() {
-        const data = generateRandomData();
-        document.getElementById(
-          "temperature"
-        ).innerText = `${data.temperature} °C`;
-        document.getElementById("humidity").innerText = `${data.humidity} %`;
-        document.getElementById("air-quality").innerText = data.airQuality;
-        document.getElementById("pressure").innerText = `${data.pressure} hPa`;
-
-        // Manage alerts
-        checkThresholds(data);
+      // Update UI with new data
+      function updateDisplay(data) {
+        document.getElementById('temperature').textContent = `${data.temperature.toFixed(2)} °C`;
+        document.getElementById('humidity').textContent = `${data.humidity.toFixed(2)} %`;
+        document.getElementById('air-quality').textContent = Math.round(data.airQuality);
+        document.getElementById('pressure').textContent = `${data.pressure.toFixed(2)} hPa`;
       }
 
-      // Check thresholds and trigger alerts
+      // Alert threshold checks
       function checkThresholds(data) {
-        activeAlerts = []; // Reset alerts
+        activeAlerts = [];
 
         if (data.temperature > thresholds.tempHigh) {
           activeAlerts.push({
             message: "High Temperature Alert!",
-            instructions: "Stay hydrated and avoid outdoor activities.",
+            instructions: "Stay hydrated and avoid outdoor activities."
           });
         }
 
         if (data.temperature < thresholds.tempLow) {
           activeAlerts.push({
             message: "Low Temperature Alert!",
-            instructions: "Wear warm clothes and stay indoors.",
+            instructions: "Wear warm clothes and stay indoors."
           });
         }
 
         if (data.humidity < thresholds.humidityLow) {
           activeAlerts.push({
             message: "Low Humidity Alert!",
-            instructions: "Use a humidifier and drink more water.",
+            instructions: "Use a humidifier and drink more water."
           });
         }
 
         if (data.airQuality > thresholds.airQualityHigh) {
           activeAlerts.push({
             message: "High Pollution Alert!",
-            instructions: "Wear a mask and limit outdoor activities.",
+            instructions: "Wear a mask and limit outdoor activities."
           });
         }
 
         displayAlerts();
       }
 
-      // Display alerts in the alert box
+      // Display alerts
       function displayAlerts() {
         const alertBox = document.getElementById("alertBox");
         const alertList = document.getElementById("alertList");
 
-        // Populate alert list with current alerts
         alertList.innerHTML = activeAlerts
-          .map(
-            (alert, index) => ` 
-        <div class="bg-gray-800 p-3 rounded-md shadow flex justify-between items-center">
-            <div>
+          .map((alert, index) => `
+            <div class="bg-black p-3 rounded-md shadow flex justify-between items-center">
+              <div>
                 <p class="font-bold text-white">${alert.message}</p>
                 <p class="text-sm text-yellow-300">${alert.instructions}</p>
-            </div>
-            <button class="text-red-500 hover:text-red-700 text-2xl" onclick="closeAlert(${index})">&times;</button>
-        </div>
-      `
-          )
-          .join("");
+              </div>
+              <button class="text-red-500 hover:text-red-700 text-2xl" onclick="closeAlert(${index})">&times;</button>
+            </div>`
+          ).join("");
 
-        // Show or hide alert box
-        if (activeAlerts.length !== 0) {
-          alertBox.classList.remove("hidden");
+        alertBox.classList.toggle("hidden", !activeAlerts.length);
+        handleAlertSound(activeAlerts.length > 0);
+      }
 
-          // Always play the alert sound when there are active alerts
-          if (!alertSoundPlaying) {
-            alertSound.play().catch((err) => {
-              console.error("Error playing alert sound:", err);
-            });
-            alertSoundPlaying = true;
-          }
-        } else {
-          alertBox.classList.add("hidden");
-
-          // Stop the alert sound when all alerts are cleared
+      function handleAlertSound(shouldPlay) {
+        if (shouldPlay && !alertSoundPlaying) {
+          alertSound.play().catch(console.error);
+          alertSoundPlaying = true;
+        } else if (!shouldPlay && alertSoundPlaying) {
           alertSound.pause();
           alertSound.currentTime = 0;
           alertSoundPlaying = false;
         }
       }
 
-      // Close individual alert
       function closeAlert(index) {
-        activeAlerts.splice(index, 1); // Remove the specific alert
+        activeAlerts.splice(index, 1);
         displayAlerts();
       }
-
-      // Initial load with predefined data
-      displayInitialData();
-
-      // Periodic data update
-      setInterval(updateData, 5000);
     </script>
   </body>
 </html>
